@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>¡Letro - Aprende con la Cámara! 📸</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        position: fixed;
+        background-color: #000;
+      }
+
+      .camera-container {
+        position: relative;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      #video {
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+      }
+
+      .speech-bubble {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 80px;
+        background-color: white;
+        padding: 15px;
+        border-radius: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 30;
+        font-size: 1.2em;
+      }
+
+      .speech-bubble::after {
+        content: "";
+        position: absolute;
+        right: -15px;
+        top: 50%;
+        border: 8px solid transparent;
+        border-left-color: white;
+        transform: translateY(-50%);
+      }
+
+      .mascot {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 60px;
+        height: 60px;
+        z-index: 31;
+        background-color: #ffb6c1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: float 2s ease-in-out infinite;
+      }
+
+      .description-box {
+        position: absolute;
+        bottom: 90px;
+        left: 20px;
+        right: 20px;
+        background-color: white;
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 20;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .audio-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ffd700;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: transform 0.2s;
+      }
+
+      .audio-button:active {
+        transform: scale(0.95);
+      }
+
+      .description-text {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 1.1em;
+        color: #333;
+      }
+
+      .capture-button {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 70px;
+        background-color: #4caf50;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .green-circle {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 60px;
+        background-color: #90ee90;
+        border-radius: 50%;
+        z-index: 9;
+      }
+
+      #loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px 30px;
+        border-radius: 15px;
+        display: none;
+        z-index: 100;
+        font-size: 1.2em;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      #startCamera {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #4caf50;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        border: none;
+        font-size: 1.2em;
+        cursor: pointer;
+        display: none;
+        z-index: 100;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="camera-container">
+      <div class="speech-bubble">
+        ¡Hola! Apunta la cámara a un objeto para aprender
+      </div>
+      <div class="mascot">🧠</div>
+
+      <video id="video" autoplay playsinline muted></video>
+
+      <div class="description-box">
+        <button class="audio-button" onclick="playAudio()">🔊</button>
+        <div class="description-text">
+          Encuentra objetos interesantes y aprende nuevas palabras
+        </div>
+      </div>
+
+      <div class="green-circle"></div>
+      <button class="capture-button" onclick="takePicture()">📸</button>
+      <button id="startCamera">Iniciar Cámara 📸</button>
+
+      <div id="loading">🤔 Analizando... ¡Espera un momentito! ✨</div>
+    </div>
+
+    <canvas id="canvas" style="display: none"></canvas>
+    <audio id="description-audio"></audio>
+
+    <script>
+      let video = document.getElementById("video");
+      let canvas = document.getElementById("canvas");
+      let context = canvas.getContext("2d");
+      let audio = document.getElementById("description-audio");
+      let isPlayingAudio = false;
+
+      async function initCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false,
+          });
+          video.srcObject = stream;
+          document.getElementById("startCamera").style.display = "none";
+        } catch (err) {
+          handleCameraError(err);
+        }
+      }
+
+      function handleCameraError(error) {
+        console.error("Error de cámara:", error);
+        let mensaje = "¡Ups! No pudimos encontrar tu cámara. ";
+        if (
+          error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError"
+        ) {
+          mensaje += "Por favor, permite el acceso a la cámara.";
+        } else if (error.name === "NotFoundError") {
+          mensaje += "No se encontró ninguna cámara.";
+        } else {
+          mensaje += "¿Nos das permiso para usarla?";
+        }
+        alert(mensaje);
+        document.getElementById("startCamera").style.display = "block";
+      }
+
+      function playAudio() {
+        if (!audio.src) return;
+
+        if (isPlayingAudio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+
+        audio
+          .play()
+          .then(() => {
+            isPlayingAudio = true;
+            const audioButton = document.querySelector(".audio-button");
+            audioButton.classList.add("pulse");
+            console.log("Reproduciendo audio");
+          })
+          .catch((error) => {
+            console.error("Error reproduciendo audio:", error);
+            isPlayingAudio = false;
+          });
+      }
+
+      audio.addEventListener("ended", () => {
+        isPlayingAudio = false;
+        const audioButton = document.querySelector(".audio-button");
+        audioButton.classList.remove("pulse");
+        console.log("Audio terminado");
+      });
+
+      async function takePicture() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const blob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/jpeg", 0.8)
+        );
+        const formData = new FormData();
+        formData.append("file", blob, "photo.jpg");
+
+        document.getElementById("loading").style.display = "block";
+
+        try {
+          const response = await fetch("/analyze-image/", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+          document.getElementById("loading").style.display = "none";
+
+          if (data.error) {
+            document.querySelector(".speech-bubble").textContent =
+              "¡Ups! Algo salió mal. ¡Intenta de nuevo!";
+          } else {
+            document.querySelector(
+              ".speech-bubble"
+            ).textContent = `¡Encontraste un ${data.objeto}!`;
+            document.querySelector(".description-text").textContent =
+              data.descripcion;
+
+            if (isPlayingAudio) {
+              audio.pause();
+              audio.currentTime = 0;
+              isPlayingAudio = false;
+            }
+
+            // Cargar y reproducir el nuevo audio
+            audio.src = data.audio_url;
+
+            audio.addEventListener("loadeddata", function audioLoaded() {
+              console.log("Audio cargado");
+              setTimeout(playAudio, 500); // Pequeño retraso para asegurar la carga
+              audio.removeEventListener("loadeddata", audioLoaded);
+            });
+
+            audio.addEventListener("error", function (e) {
+              console.error("Error cargando audio:", e);
+              console.log("URL del audio:", audio.src);
+            });
+          }
+        } catch (error) {
+          console.error("Error en la petición:", error);
+          document.getElementById("loading").style.display = "none";
+          document.querySelector(".speech-bubble").textContent =
+            "¡Por favor, intenta de nuevo!";
+        }
+      }
+
+      // Inicializar la cámara al cargar
+      document.addEventListener("DOMContentLoaded", initCamera);
+      document.getElementById("startCamera").onclick = initCamera;
+
+      // Prevenir zoom en móviles
+      document.addEventListener(
+        "touchmove",
+        function (event) {
+          if (event.scale !== 1) {
+            event.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+
+      // Manejar errores generales
+      window.onerror = function (msg, url, lineNo, columnNo, error) {
+        console.error(
+          "Error:",
+          msg,
+          "\nURL:",
+          url,
+          "\nLine:",
+          lineNo,
+          "\nColumn:",
+          columnNo,
+          "\nError object:",
+          error
+        );
+        return false;
+      };
+    </script>
+  </body>
+</html>
