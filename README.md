@@ -7,7 +7,7 @@ Letrópolis es una aplicación móvil educativa diseñada para niños de 6 años
 ## 🎥 Demo
 
 <p align="center">
-  <img src="./assets/gifs/Demo.gif" alt="Demo del Sistema">
+  <img src="./assets/gifs/Demo.gif" alt="Demo del Sistema" width="50%">
 </p>
 
 ## 🤖 ¿Cómo Funciona?
